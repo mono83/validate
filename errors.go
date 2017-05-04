@@ -18,17 +18,18 @@ func (v validationError) Error() string {
 }
 
 // errorf builds and returns validation error
-func errorf(src Interface, format string, a ...string) validationError {
+func errorf(src Interface, format string, a ...interface{}) validationError {
 	return validationError{
 		k: reflect.TypeOf(src).Kind(),
 		m: fmt.Sprintf(format, a...),
 	}
 }
 
-// errorsList represents errors list
-type errorsList []error
+// ErrorsList represents list of (validation) errors
+// Do not use it on other ways
+type ErrorsList []error
 
-func (e errorsList) Error() string {
+func (e ErrorsList) Error() string {
 	buf := bytes.NewBufferString("Multiple validation errors (")
 	buf.WriteString(strconv.Itoa(len(e)))
 	buf.WriteRune(')')

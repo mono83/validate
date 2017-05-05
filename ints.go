@@ -3,6 +3,7 @@ package validate
 // IntPositive is validation container for positive integers
 type IntPositive int
 
+// Validate performs validation
 func (i IntPositive) Validate() error {
 	if i < 1 {
 		return errorf(i, "Expected positive value, but got %d", int(i))
@@ -14,8 +15,9 @@ func (i IntPositive) Validate() error {
 // IntOdd is validation container for odd integers
 type IntOdd int
 
+// Validate performs validation
 func (i IntOdd) Validate() error {
-	if i % 2 == 0 {
+	if i%2 == 0 {
 		return errorf(i, "Expected odd value, but got even %d", int(i))
 	}
 
@@ -25,8 +27,9 @@ func (i IntOdd) Validate() error {
 // IntEven is validation container for even integers
 type IntEven int
 
+// Validate performs validation
 func (i IntEven) Validate() error {
-	if i % 2 != 0 {
+	if i%2 != 0 {
 		return errorf(i, "Expected even value, but got odd %d", int(i))
 	}
 

@@ -1,0 +1,4 @@
+
+travis:
+	go test ./...
+

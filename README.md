@@ -25,8 +25,8 @@ func foo(name string) error {
 
 To perform more than one check at once, use `validate.All` function:
 ```go
-func foo(name string) error {
-        if err := validate.All(validate.StringNotEmpty(name), validate.StringLatin(name)); err != nil {
+func foo(number int) error {
+        if err := validate.All(validate.IntPositive(number), validate.IntOdd(number)); err != nil {
                 // If both validation fails, resulting error will contain combined message
                 return err
         }
@@ -39,6 +39,9 @@ func foo(name string) error {
 
 | Cast from | Name | Valid values | Invalid values |  |
 | --------- | ---- | ------------ | -------------- | --- |
+| `int` | `validate.IntPositive` | `1` | `0`, `-1` | |
+| `int` | `validate.IntOdd` | `1`, `27`, `-3` | `0`, `2` | |
+| `int` | `validate.IntEven` | `0`, `-2`, `1024` | `15`, `-1` | |
 | `string` | `validate.StringAlpha` | `"abc"`, `"foo"`, `"русский"` | `""`, `"123abc"` | Only UTF-8 letters |
 | `string` | `validate.StringAlpha` | `"abc"`, `"foo"` | `""`, `"123abc"`, `"русский"` | Only latin-1 letters |
 | `string` | `validate.StringNotEmpty` | `"abc"`, `"foo"`, `" "` | `""` | |

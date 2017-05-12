@@ -34,10 +34,8 @@ func (e ErrorsList) Error() string {
 	buf.WriteString(strconv.Itoa(len(e)))
 	buf.WriteRune(')')
 
-	for i, err := range e {
-		if i > 0 {
-			buf.WriteRune('\n')
-		}
+	for _, err := range e {
+		buf.WriteRune('\n')
 		buf.WriteString(err.Error())
 	}
 

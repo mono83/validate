@@ -25,6 +25,10 @@ func errorf(src Interface, format string, a ...interface{}) validationError {
 	}
 }
 
+type multipleErrorsContainer interface {
+	List() []error
+}
+
 // NewErrorsList builds new errors list collection
 func NewErrorsList() ErrorsList {
 	return ErrorsList([]error{})
@@ -54,11 +58,61 @@ func (e ErrorsList) Error() string {
 	return buf.String()
 }
 
+// Assert performs value assertion
+// It will generate an error and add it to errors list if:
+// - nil
+// - int - value is zero
+// - float32, float64 - value is zero
+// - string - empty string
+// - validate.Interface - error inside Validate() func
+func (e *ErrorsList) Assert(value interface{}, field string) {
+	if value == nil {
+		e.Addf(`"%s" expected to be not nil`, field)
+	}
+
+	if v, ok := value.(Interface); ok {
+		e.Add(v.Validate())
+		return
+	}
+
+	switch value.(type) {
+	case int:
+		if value.(int) == 0 {
+			e.Addf(`"%s" expected to be not empty, but zero found`, field)
+		}
+	case float32:
+		if value.(float32) == 0 {
+			e.Addf(`"%s" expected to be not empty, but zero found`, field)
+		}
+	case float64:
+		if value.(float32) == 0 {
+			e.Addf(`"%s" expected to be not empty, but zero found`, field)
+		}
+	case string:
+		if value.(string) == "" {
+			e.Addf(`"%s" expected to be not empty, but empty string found`, field)
+		}
+	default:
+		e.Addf("unable to perform assertion on %T for %s", value, field)
+	}
+}
+
 // Add adds new error to errors list
 func (e *ErrorsList) Add(err error) {
 	if err != nil {
+		// Checking against container
+		if container, ok := err.(multipleErrorsContainer); ok {
+			for _, err := range container.List() {
+				e.Add(err)
+			}
+		}
 		*e = append(*e, err)
 	}
+}
+
+// List returns list of errors stored inside list
+func (e ErrorsList) List() []error {
+	return e
 }
 
 // Addf creates new error and adds it to list

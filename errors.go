@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"reflect"
 	"strconv"
+	"time"
 )
 
 // General validation error
@@ -65,36 +66,55 @@ func (e ErrorsList) Error() string {
 // - float32, float64 - value is zero
 // - string - empty string
 // - validate.Interface - error inside Validate() func
-func (e *ErrorsList) Assert(value interface{}, field string) {
+//
+// Returns true if assertion was successful, false on error
+func (e *ErrorsList) Assert(value interface{}, field string) bool {
 	if value == nil {
 		e.Addf(`"%s" expected to be not nil`, field)
+		return false
 	}
 
 	if v, ok := value.(Interface); ok {
-		e.Add(v.Validate())
-		return
+		err := v.Validate()
+		if err != nil {
+			e.Add(err)
+			return false
+		}
+		return true
 	}
 
 	switch value.(type) {
 	case int:
 		if value.(int) == 0 {
 			e.Addf(`"%s" expected to be not empty, but zero found`, field)
+			return false
 		}
 	case float32:
 		if value.(float32) == 0 {
 			e.Addf(`"%s" expected to be not empty, but zero found`, field)
+			return false
 		}
 	case float64:
-		if value.(float32) == 0 {
+		if value.(float64) == 0 {
 			e.Addf(`"%s" expected to be not empty, but zero found`, field)
+			return false
 		}
 	case string:
 		if value.(string) == "" {
 			e.Addf(`"%s" expected to be not empty, but empty string found`, field)
+			return false
+		}
+	case time.Duration:
+		if value.(time.Duration) == 0 {
+			e.Addf(`"%s" expected to be not empty, but empty duration found`, field)
+			return false
 		}
 	default:
 		e.Addf("unable to perform assertion on %T for %s", value, field)
+		return false
 	}
+
+	return true
 }
 
 // Add adds new error to errors list

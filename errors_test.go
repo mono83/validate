@@ -2,7 +2,9 @@ package validate
 
 import (
 	"errors"
+	"fmt"
 	"testing"
+	"time"
 )
 
 func TestErrorsList(t *testing.T) {
@@ -23,5 +25,45 @@ func TestErrorsList(t *testing.T) {
 	}
 	if l := es.OrNil().(ErrorsList).Len(); l != 2 {
 		t.Errorf("Expected 2 but got %d", l)
+	}
+}
+
+var errorsListAssertDate = []struct {
+	Given   interface{}
+	Success bool
+}{
+	{nil, false},
+	{0, false},
+	{1, true},
+	{-1, true},
+	{float32(0), false},
+	{float32(1), true},
+	{float32(-1), true},
+	{float64(0), false},
+	{float64(1), true},
+	{float64(-1), true},
+	{"", false},
+	{" ", true},
+	{"foo", true},
+	{time.Duration(0), false},
+	{time.Millisecond, true},
+	{IntPositive(0), false},  // Validable interface
+	{IntPositive(-1), false}, // Validable interface
+	{IntPositive(1), true},   // Validable interface
+}
+
+func TestErrorsList_Assert(t *testing.T) {
+	for _, data := range errorsListAssertDate {
+		t.Run(fmt.Sprintf("%T - %v", data.Given, data.Given), func(t *testing.T) {
+			es := NewErrorsList()
+			result := es.Assert(data.Given, "any")
+			if result != data.Success {
+				if result {
+					t.Error("Expected failed assertion")
+				} else {
+					t.Error("Expected success assertion")
+				}
+			}
+		})
 	}
 }

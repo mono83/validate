@@ -10,5 +10,5 @@ func All(values ...Interface) error {
 		}
 	}
 
-	return list
+	return list.OrNil()
 }

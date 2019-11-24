@@ -136,8 +136,9 @@ func (e *ErrorsList) Add(err error) {
 			for _, err := range container.List() {
 				e.Add(err)
 			}
+		} else {
+			*e = append(*e, err)
 		}
-		*e = append(*e, err)
 	}
 }
 

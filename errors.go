@@ -74,6 +74,7 @@ func (e *ErrorsList) Assert(value interface{}, field string) bool {
 		return false
 	}
 
+	// Value implements validable interface
 	if v, ok := value.(Interface); ok {
 		err := v.Validate()
 		if err != nil {
@@ -110,6 +111,16 @@ func (e *ErrorsList) Assert(value interface{}, field string) bool {
 			return false
 		}
 	default:
+		refValue := reflect.ValueOf(value)
+		if refValue.Kind() == reflect.Func {
+			if refValue.IsNil() {
+				e.Addf(`"%s" expected to be not nil`, field)
+				return false
+			}
+			// Non nil reference to function
+			return true
+		}
+
 		e.Addf("unable to perform assertion on %T for %s", value, field)
 		return false
 	}

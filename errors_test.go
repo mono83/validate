@@ -67,3 +67,24 @@ func TestErrorsList_Assert(t *testing.T) {
 		})
 	}
 }
+
+func TestErrorsList_AssertFuncReference(t *testing.T) {
+	var holder struct {
+		Func func(int)
+	}
+
+	es := NewErrorsList()
+	es.Assert(holder.Func, "Func")
+	if es.OrNil() == nil {
+		t.Error("Expected error")
+	}
+
+	holder.Func = func(int) {
+	}
+
+	es = NewErrorsList()
+	es.Assert(holder.Func, "Func")
+	if err := es.OrNil(); err != nil {
+		t.Error("Expected no error but got " + err.Error())
+	}
+}
